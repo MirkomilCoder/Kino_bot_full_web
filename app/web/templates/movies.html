@@ -1,0 +1,212 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>🎬</span>
+        <span>Kino Boshqaruvi</span>
+    </h1>
+    <p class="muted">Movie va seriallarni kod bo'yicha boshqaring. Seriallar uchun qism tanlang.</p>
+    <div class="chip-row" style="margin-top: 12px;">
+        <span class="chip">📊 Jami yozuv: <strong>{{ total }}</strong></span>
+        <span class="chip">🔎 Filter: <strong>{{ kind }}</strong></span>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>🎥 Kino Yuklash</h2>
+    <form method="post" action="/admin/movies/upload" enctype="multipart/form-data" class="form-grid">
+        <div class="split">
+            <label>
+                <span>🔢 Kod</span>
+                <input name="code" type="text" placeholder="Masalan: 123" required>
+            </label>
+            <label>
+                <span>📁 Turi</span>
+                <select name="content_kind" id="content_kind" required>
+                    <option value="movie">🎞️ Movie (Kino)</option>
+                    <option value="serial">📺 Serial</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="split">
+            <label>
+                <span>🎯 Qism (serial uchun)</span>
+                <input name="part_number" id="part_number" type="number" min="1" value="1" required>
+            </label>
+            <label>
+                <span>📡 Kino Kanali</span>
+                <select name="movie_channel_id" required>
+                    {% for ch in movie_channels %}
+                    <option value="{{ ch.chat_id }}">
+                        {% if ch.username %}@{{ ch.username }}{% else %}{{ ch.title or ch.chat_id }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+
+        <label>
+            <span>📝 Tavsif (ixtiyoriy)</span>
+            <textarea name="caption" rows="4" placeholder="Kino haqida qisqa tavsif yozing..."></textarea>
+        </label>
+
+        <label>
+            <span>📦 Media Fayl</span>
+            <input name="media_file" type="file" accept="video/*,*/*" required>
+            <small>✅ Video yoki hujjat formatidagi fayl qabul qilinadi.</small>
+        </label>
+
+        <button class="btn btn-primary" type="submit">
+            <span>⬆️</span>
+            <span>Kino Yuklash</span>
+        </button>
+    </form>
+
+    {% if not movie_channels %}
+    <div class="note warn" style="margin-top: 14px;">
+        ⚠️ Avval <strong>Kanallar</strong> bo'limida kino kanal qo'shing.
+    </div>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h2>🔍 Kinolar Ro'yxati</h2>
+    <form method="get" action="/admin/movies" class="inline-form" style="margin-bottom: 14px;">
+        <input type="text" name="q" value="{{ q }}" placeholder="Kod bo'yicha qidirish..." style="flex: 1; min-width: 220px;">
+        <select name="kind">
+            <option value="all" {% if kind == "all" %}selected{% endif %}>📋 Barchasi</option>
+            <option value="movie" {% if kind == "movie" %}selected{% endif %}>🎞️ Movie</option>
+            <option value="serial" {% if kind == "serial" %}selected{% endif %}>📺 Serial</option>
+        </select>
+        <button class="btn btn-primary" type="submit">🔎 Qidirish</button>
+    </form>
+
+    {% if movies_list %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>🔢 Kod</th>
+                <th>📁 Turi</th>
+                <th>🎯 Qism</th>
+                <th>📡 Kanal</th>
+                <th>📨 Message ID</th>
+                <th>📝 Tavsif</th>
+                <th>🔧 Amal</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for m in movies_list %}
+            <tr>
+                <td><strong>{{ m.code }}</strong></td>
+                <td>
+                    {% if m.content_kind == "movie" %}
+                    <span class="chip">🎞️ Movie</span>
+                    {% else %}
+                    <span class="chip">📺 Serial</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ m.part_number }}</strong></td>
+                <td><code>{{ m.channel_id }}</code></td>
+                <td><code>{{ m.message_id }}</code></td>
+                <td class="clamp" title="{{ m.caption or '-' }}">{{ m.caption or "—" }}</td>
+                <td>
+                    <div class="inline-form">
+                        <a class="btn btn-outline btn-sm" href="/admin/movies/parts?code={{ m.code }}" title="Qismlarni ko'rish">📂 Qismlar</a>
+                        <form method="post" action="/admin/movies/delete" class="inline-form">
+                            <input type="hidden" name="code" value="{{ m.code }}">
+                            <input type="hidden" name="content_kind" value="{{ m.content_kind }}">
+                            <input type="hidden" name="part_number" value="{{ m.part_number }}">
+                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('O\'chirilsinmi?')">🗑️ O'chirish</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="note">📭 Kinolar topilmadi.</div>
+    {% endif %}
+
+    <div class="inline-stats">
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Jami Kinolar:</span>
+            <span class="stat-value">{{ total }}</span>
+        </div>
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Sahifa:</span>
+            <span class="stat-value">{{ page }}</span>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>📚 Kodlar Bo'yicha Umumiy Ko'rinish</h2>
+    {% if code_overview %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>🔢 Kod</th>
+                <th>📁 Turi</th>
+                <th>🎬 Qismlar Soni</th>
+                <th>⏱️ Oxirgi Qo'shilgan</th>
+                <th>🔧 Amal</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in code_overview %}
+            <tr>
+                <td><strong>{{ row.code }}</strong></td>
+                <td>
+                    {% if row.content_kind == "movie" %}
+                    <span class="chip">🎞️ Movie</span>
+                    {% else %}
+                    <span class="chip">📺 Serial</span>
+                    {% endif %}
+                </td>
+                <td><span class="status info">{{ row.parts_count }} ta</span></td>
+                <td>{{ row.last_added|fmt_dt }}</td>
+                <td>
+                    <a class="btn btn-outline btn-sm" href="/admin/movies/parts?code={{ row.code }}">👁️ Ochish</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="note">📭 Kodlar topilmadi.</div>
+    {% endif %}
+</section>
+
+<script>
+    (() => {
+        const kindEl = document.getElementById("content_kind");
+        const partEl = document.getElementById("part_number");
+        if (!kindEl || !partEl) return;
+
+        const sync = () => {
+            if (kindEl.value === "movie") {
+                partEl.value = "1";
+                partEl.setAttribute("disabled", "disabled");
+                partEl.classList.add("is-readonly");
+                partEl.title = "Movie uchun qism soni doim 1 bo'ladi";
+            } else {
+                partEl.removeAttribute("disabled");
+                partEl.classList.remove("is-readonly");
+                if (!partEl.value || Number(partEl.value) < 1) partEl.value = "1";
+                partEl.title = "";
+            }
+        };
+
+        kindEl.addEventListener("change", sync);
+        sync();
+    })();
+</script>
+
+{% endblock %}

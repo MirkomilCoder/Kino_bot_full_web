@@ -1,0 +1,86 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>⚙️</span>
+        <span>Bot Settings</span>
+    </h1>
+    <p class="muted">Bot va admin panel sozlamalarini boshqarish.</p>
+</section>
+
+<section class="panel">
+    <h2>📤 Caption Yuborish Sozlamalari</h2>
+    <form method="post" action="/admin/settings/caption" class="form-grid">
+        <div class="note">
+            <label class="checkbox" style="margin: 0;">
+                <input type="checkbox" name="send_caption" value="1" {% if send_caption_enabled %}checked{% endif %}>
+                <span style="font-weight: 600;">📝 Userga kino yuborilganda caption ham yuborilsin</span>
+            </label>
+            <p class="muted" style="margin-top: 8px;">
+                ✅ Faol bo'lsa kinoning tavsifi va metadata ham yuboriladi.<br>
+                ✅ O'chiq bo'lsa faqat media fayli yuboriladi.
+            </p>
+        </div>
+
+        <button class="btn btn-primary" type="submit">
+            <span>💾</span>
+            <span>Sozlamani Saqlash</span>
+        </button>
+    </form>
+
+    <div class="note" style="margin-top: 14px;">
+        <strong>📊 Hozirgi Holat:</strong>
+        {% if send_caption_enabled %}
+        <div style="margin-top: 8px;"><span class="status ok">✅ Caption yuboriladi</span></div>
+        <p class="muted" style="margin-top: 8px;">Kinolar userga yuborilganda caption ma'lumoti ham birga yuboriladi.</p>
+        {% else %}
+        <div style="margin-top: 8px;"><span class="status bad">❌ Faqat media yuboriladi</span></div>
+        <p class="muted" style="margin-top: 8px;">Kinolar userga yuborilganda faqat video/document fayli yuboriladi.</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel">
+    <h2>ℹ️ Tizim Ma'lumotlari</h2>
+    <div class="quick-grid">
+        <div class="quick-link">
+            <span class="ql-icon">🔗</span>
+            <span class="ql-label">Admin Panel URL</span>
+            <code>/admin</code>
+        </div>
+        <div class="quick-link">
+            <span class="ql-icon">🩺</span>
+            <span class="ql-label">Health Check URL</span>
+            <code>/health</code>
+        </div>
+        <div class="quick-link">
+            <span class="ql-icon">🗄️</span>
+            <span class="ql-label">Database</span>
+            <span class="ql-desc">SQLite / PostgreSQL</span>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>🧭 Foydali Bo'limlar</h2>
+    <div class="quick-grid">
+        <a href="/admin" class="quick-link">
+            <span class="ql-icon">🏠</span>
+            <span class="ql-label">Bosh Panel</span>
+            <span class="ql-desc">Asosiy statistika va nazorat</span>
+        </a>
+        <a href="/admin/users" class="quick-link">
+            <span class="ql-icon">👥</span>
+            <span class="ql-label">Userlar</span>
+            <span class="ql-desc">Userlarni boshqarish</span>
+        </a>
+        <a href="/admin/movies" class="quick-link">
+            <span class="ql-icon">🎬</span>
+            <span class="ql-label">Kinolar</span>
+            <span class="ql-desc">Kino/serial katalogi</span>
+        </a>
+    </div>
+</section>
+
+{% endblock %}

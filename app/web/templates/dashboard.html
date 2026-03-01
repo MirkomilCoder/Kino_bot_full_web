@@ -1,0 +1,141 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>📊</span>
+        <span>{% if dashboard_mode == "owner" %}Owner Dashboard{% else %}Admin Dashboard{% endif %}</span>
+    </h1>
+    <p class="muted">Barcha asosiy statistikalar va tezkor boshqaruv shu oynada.</p>
+
+    <div class="cards" style="margin-top: 14px;">
+        <article class="card">
+            <div class="icon-wrap">👥</div>
+            <h3>Userlar</h3>
+            <p>{{ users_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">🎞️</div>
+            <h3>Kinolar</h3>
+            <p>{{ movies_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">📡</div>
+            <h3>Kino Kanallar</h3>
+            <p>{{ movie_channels_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">🔔</div>
+            <h3>Obuna Kanallar</h3>
+            <p>{{ sub_channels_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">⛔</div>
+            <h3>Bloklangan</h3>
+            <p>{{ blocked_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">💬</div>
+            <h3>Ochiq Support</h3>
+            <p>{{ open_support_count }}</p>
+        </article>
+        <article class="card">
+            <div class="icon-wrap">🛡️</div>
+            <h3>Adminlar</h3>
+            <p>{{ admins_count }}</p>
+        </article>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>⚡ Tezkor Amallar</h2>
+    <div class="quick-grid">
+        <a class="quick-link" href="/admin/movies">
+            <span class="ql-icon">🎬</span>
+            <span class="ql-label">Kino Qo'shish</span>
+            <span class="ql-desc">Kino va seriallarni yuklash</span>
+        </a>
+        <a class="quick-link" href="/admin/channels">
+            <span class="ql-icon">📡</span>
+            <span class="ql-label">Kanal Sozlash</span>
+            <span class="ql-desc">Kino va obuna kanallari</span>
+        </a>
+        <a class="quick-link" href="/admin/broadcast">
+            <span class="ql-icon">📣</span>
+            <span class="ql-label">Broadcast</span>
+            <span class="ql-desc">Mass xabar yuborish</span>
+        </a>
+        <a class="quick-link" href="/admin/settings">
+            <span class="ql-icon">⚙️</span>
+            <span class="ql-label">Sozlamalar</span>
+            <span class="ql-desc">Bot xatti-harakatini sozlash</span>
+        </a>
+        <a class="quick-link" href="/admin/support">
+            <span class="ql-icon">💬</span>
+            <span class="ql-label">Support Ticketlar</span>
+            <span class="ql-desc">User savollariga javob berish</span>
+        </a>
+        <a class="quick-link" href="/admin/users">
+            <span class="ql-icon">👥</span>
+            <span class="ql-label">Userlar</span>
+            <span class="ql-desc">User boshqaruvi va bloklash</span>
+        </a>
+        <a class="quick-link" href="/admin/admins">
+            <span class="ql-icon">🛡️</span>
+            <span class="ql-label">Adminlar</span>
+            <span class="ql-desc">Admin tayinlash yoki o'chirish</span>
+        </a>
+    </div>
+
+    {% if dashboard_mode == "owner" %}
+    <div class="note ok" style="margin-top: 12px;">✅ Owner huquqi faol: admin tayinlash va o'chirish mumkin.</div>
+    {% else %}
+    <div class="note warn" style="margin-top: 12px;">⚠️ Admin rejimi: admin tayinlash/o'chirish yopiq (read-only).</div>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h2>📋 So'nggi Broadcastlar</h2>
+    {% if broadcast_logs %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Umumiy</th>
+                <th>Yuborildi</th>
+                <th>Xato</th>
+                <th>Yaratilgan</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in broadcast_logs %}
+            <tr>
+                <td><strong>#{{ row.id }}</strong></td>
+                <td>
+                    {% if row.status == "done" %}
+                    <span class="status ok">✅ Tugallandi</span>
+                    {% elif row.status == "failed" %}
+                    <span class="status bad">❌ Xato</span>
+                    {% elif row.status == "running" %}
+                    <span class="status warn">⏳ Ishlayapti</span>
+                    {% else %}
+                    <span class="status info">🕓 Navbatda</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ row.total_users }}</strong></td>
+                <td><span class="status ok">{{ row.sent_count }}</span></td>
+                <td><span class="status bad">{{ row.failed_count }}</span></td>
+                <td>{{ row.created_at|fmt_dt }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="note info">📭 Hozircha broadcast yo'q.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

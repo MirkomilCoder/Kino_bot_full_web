@@ -1,0 +1,116 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>👥</span>
+        <span>Userlar Boshqaruvi</span>
+    </h1>
+
+    <form method="get" action="/admin/users" class="inline-form" style="margin-bottom: 14px;">
+        <div class="search-wrap" style="flex: 1; min-width: 220px;">
+            <span class="search-icon">🔎</span>
+            <input type="text" name="q" placeholder="ID / Ism / Username..." value="{{ q }}">
+        </div>
+        <button class="btn btn-primary" type="submit">🔍 Qidirish</button>
+    </form>
+
+    {% if users_list %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Ism</th>
+                <th>Username</th>
+                <th>Rol</th>
+                <th>Oxirgi Kirish</th>
+                <th>Status</th>
+                <th>Amallar</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for u in users_list %}
+            <tr>
+                <td><code>{{ u.user_id }}</code></td>
+                <td>
+                    <strong>{{ (u.first_name or '') }}{% if u.first_name and u.last_name %} {% endif %}{{ (u.last_name or '') }}</strong>
+                </td>
+                <td>{% if u.username %}<code>@{{ u.username }}</code>{% else %}<span class="muted">—</span>{% endif %}</td>
+                <td>
+                    {% if u.is_owner %}
+                    <span class="status ok">👑 OWNER</span>
+                    {% elif u.is_admin %}
+                    <span class="status info">🛡️ ADMIN</span>
+                    {% else %}
+                    <span class="muted">USER</span>
+                    {% endif %}
+                </td>
+                <td>{{ u.last_seen|fmt_dt }}</td>
+                <td>
+                    {% if u.is_blocked %}
+                    <span class="status bad">⛔ Bloklangan</span>
+                    {% else %}
+                    <span class="status ok">✅ Faol</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="inline-form">
+                        {% if u.is_owner %}
+                        <span class="status ok">👑 Owner himoyalangan</span>
+                        {% elif u.is_blocked %}
+                        <form method="post" action="/admin/users/unblock" class="inline-form">
+                            <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                            <input type="hidden" name="next_url" value="/admin/users?page={{ page }}&q={{ q }}">
+                            <button class="btn btn-success btn-sm" type="submit">🔓 Blokni Ochish</button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="/admin/users/block" class="inline-form">
+                            <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                            <input type="hidden" name="next_url" value="/admin/users?page={{ page }}&q={{ q }}">
+                            <input type="text" name="reason" placeholder="Blok sababi" style="max-width: 140px;">
+                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('User bloklansinmi?')">⛔ Bloklash</button>
+                        </form>
+                        {% endif %}
+
+                        {% if can_manage_admins and not u.is_owner %}
+                            {% if u.is_admin %}
+                                {% if u.is_dynamic_admin %}
+                                <form method="post" action="/admin/admins/remove" class="inline-form">
+                                    <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                                    <button class="btn btn-outline btn-sm" type="submit">➖ Admindan Olish</button>
+                                </form>
+                                {% else %}
+                                <span class="status info">📌 ENV Admin</span>
+                                {% endif %}
+                            {% else %}
+                            <form method="post" action="/admin/admins/add" class="inline-form">
+                                <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                                <button class="btn btn-outline btn-sm" type="submit">➕ Admin Qilish</button>
+                            </form>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="inline-stats">
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Jami Userlar:</span>
+            <span class="stat-value">{{ total }}</span>
+        </div>
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Sahifa:</span>
+            <span class="stat-value">{{ page }}</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="note">📭 Ma'lumot topilmadi.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

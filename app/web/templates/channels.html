@@ -1,0 +1,142 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>📡</span>
+        <span>Kanal Boshqaruvi</span>
+    </h1>
+    <p class="muted">
+        ✅ Kino kanal qo'shilganda avtomatik history sync ishga tushadi.<br>
+        ✅ Qo'lda ham <strong>Sync</strong> tugmasi orqali qayta skan qilishingiz mumkin.
+    </p>
+</section>
+
+<section class="split">
+    <article class="panel">
+        <h2>🎬 Kino Kanallari</h2>
+        <form method="post" action="/admin/channels/movie/add" class="form-grid">
+            <label>
+                <span>🆔 Chat ID</span>
+                <input name="chat_id" type="number" placeholder="Masalan: -1001234567890" required>
+            </label>
+            <label>
+                <span>📝 Sarlavha</span>
+                <input name="title" type="text" placeholder="Kanal nomi">
+            </label>
+            <label>
+                <span>📱 Username</span>
+                <input name="username" type="text" placeholder="@channel_name">
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" name="auto_sync" value="1" checked>
+                <span>🔄 Qo'shgandan keyin avtomatik sync</span>
+            </label>
+            <button class="btn btn-primary" type="submit">➕ Kanal Qo'shish</button>
+        </form>
+
+        {% if movie_channels %}
+        <div class="table-wrap" style="margin-top: 14px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>🆔 Chat ID</th>
+                        <th>📝 Sarlavha</th>
+                        <th>📱 Username</th>
+                        <th>🔧 Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in movie_channels %}
+                <tr>
+                    <td><code>{{ c.chat_id }}</code></td>
+                    <td><strong>{{ c.title or "—" }}</strong></td>
+                    <td>{% if c.username %}<code>@{{ c.username }}</code>{% else %}<span class="muted">—</span>{% endif %}</td>
+                    <td>
+                        <div class="inline-form">
+                            <form method="post" action="/admin/channels/movie/sync" class="inline-form">
+                                <input type="hidden" name="chat_id" value="{{ c.chat_id }}">
+                                <input type="hidden" name="scan_limit" value="500">
+                                <button class="btn btn-warn btn-sm" type="submit" title="Kanalni qayta skan qilish">🔄 Sync</button>
+                            </form>
+                            <form method="post" action="/admin/channels/movie/remove" class="inline-form">
+                                <input type="hidden" name="chat_id" value="{{ c.chat_id }}">
+                                <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Kanal o\'chirilsinmi?')">🗑️ O'chirish</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="note" style="margin-top: 14px;">📭 Hozircha kino kanal qo'shilmagan.</div>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <h2>🔔 Obuna Kanallari</h2>
+        <form method="post" action="/admin/channels/sub/add" class="form-grid">
+            <label>
+                <span>🆔 Chat ID</span>
+                <input name="chat_id" type="number" placeholder="Masalan: -1001234567890" required>
+            </label>
+            <label>
+                <span>📝 Sarlavha</span>
+                <input name="title" type="text" placeholder="Kanal nomi">
+            </label>
+            <label>
+                <span>📱 Username</span>
+                <input name="username" type="text" placeholder="@channel_name">
+            </label>
+            <label>
+                <span>🔗 Invite Link</span>
+                <input name="invite_link" type="text" placeholder="https://t.me/+...">
+            </label>
+            <button class="btn btn-primary" type="submit">➕ Kanal Qo'shish</button>
+        </form>
+
+        {% if sub_channels %}
+        <div class="table-wrap" style="margin-top: 14px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>🆔 Chat ID</th>
+                        <th>📝 Sarlavha</th>
+                        <th>🔗 Link</th>
+                        <th>🔧 Amal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in sub_channels %}
+                <tr>
+                    <td><code>{{ c.chat_id }}</code></td>
+                    <td><strong>{{ c.title or "—" }}</strong></td>
+                    <td>
+                        {% if c.username %}
+                        <code>@{{ c.username }}</code>
+                        {% elif c.invite_link %}
+                        <a href="{{ c.invite_link }}" target="_blank">🔗 Invite</a>
+                        {% else %}
+                        <span class="muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="/admin/channels/sub/remove" class="inline-form">
+                            <input type="hidden" name="chat_id" value="{{ c.chat_id }}">
+                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Kanal o\'chirilsinmi?')">🗑️ O'chirish</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="note" style="margin-top: 14px;">📭 Hozircha obuna kanal qo'shilmagan.</div>
+        {% endif %}
+    </article>
+</section>
+
+{% endblock %}

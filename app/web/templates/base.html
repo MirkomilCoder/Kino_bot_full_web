@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="uz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111722">
+    <title>{{ page_title }} | Kino Admin</title>
+    <link rel="stylesheet" href="{{ request.url_for('admin-static', path='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap');
+    </style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<header class="topbar">
+    <a class="brand" href="{{ home_path or '/admin' }}">
+        <span class="brand-mark">🎬</span>
+        <span>Kino Admin</span>
+    </a>
+
+    {% if admin_username %}
+    <div class="top-actions">
+        <span class="badge">👤 {{ admin_username }} · {{ (session_role or 'admin')|upper }}</span>
+        <a class="btn btn-outline btn-sm" href="/admin/logout">🚪 Chiqish</a>
+    </div>
+    {% endif %}
+</header>
+
+<div class="layout{% if not admin_username %} no-sidebar{% endif %}">
+    {% if admin_username %}
+    <aside class="sidebar" aria-label="Admin navigation">
+        <a href="{{ home_path or '/admin' }}" class="nav-link" data-path="{{ home_path or '/admin' }}" title="Dashboard">
+            <span class="icon">🏠</span>
+            <span>{% if is_owner %}Owner Dashboard{% else %}Admin Dashboard{% endif %}</span>
+        </a>
+        <a href="/admin/admins" class="nav-link" data-path="/admin/admins" title="Adminlar">
+            <span class="icon">🛡️</span>
+            <span>Adminlar</span>
+        </a>
+        <a href="/admin/users" class="nav-link" data-path="/admin/users" title="Userlar">
+            <span class="icon">👥</span>
+            <span>Userlar</span>
+        </a>
+        <a href="/admin/movies" class="nav-link" data-path="/admin/movies" title="Kinolar">
+            <span class="icon">🎞️</span>
+            <span>Kinolar</span>
+        </a>
+        <a href="/admin/channels" class="nav-link" data-path="/admin/channels" title="Kanallar">
+            <span class="icon">📡</span>
+            <span>Kanallar</span>
+        </a>
+        <a href="/admin/support" class="nav-link" data-path="/admin/support" title="Support">
+            <span class="icon">💬</span>
+            <span>Support</span>
+        </a>
+        <a href="/admin/broadcast" class="nav-link" data-path="/admin/broadcast" title="Broadcast">
+            <span class="icon">📣</span>
+            <span>Broadcast</span>
+        </a>
+        <a href="/admin/settings" class="nav-link" data-path="/admin/settings" title="Settings">
+            <span class="icon">⚙️</span>
+            <span>Sozlamalar</span>
+        </a>
+    </aside>
+    {% endif %}
+
+    <main class="content page-enter">
+        {% if ok %}
+        <div class="flash flash-ok">
+            <span>✅</span>
+            <span>{{ ok }}</span>
+        </div>
+        {% endif %}
+        {% if err %}
+        <div class="flash flash-err">
+            <span>❌</span>
+            <span>{{ err }}</span>
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+{% if admin_username %}
+<nav class="bottom-nav" aria-label="Mobile navigation">
+    <a href="{{ home_path or '/admin' }}" class="bottom-nav-link" data-path="{{ home_path or '/admin' }}" title="Dashboard">
+        <span>🏠</span>
+        <span>Home</span>
+    </a>
+    <a href="/admin/users" class="bottom-nav-link" data-path="/admin/users" title="Userlar">
+        <span>👥</span>
+        <span>Userlar</span>
+    </a>
+    <a href="/admin/movies" class="bottom-nav-link" data-path="/admin/movies" title="Kinolar">
+        <span>🎞️</span>
+        <span>Kinolar</span>
+    </a>
+    <a href="/admin/channels" class="bottom-nav-link" data-path="/admin/channels" title="Kanallar">
+        <span>📡</span>
+        <span>Kanallar</span>
+    </a>
+    <a href="/admin/support" class="bottom-nav-link" data-path="/admin/support" title="Support">
+        <span>💬</span>
+        <span>Support</span>
+    </a>
+    <a href="/admin/broadcast" class="bottom-nav-link" data-path="/admin/broadcast" title="Broadcast">
+        <span>📣</span>
+        <span>Broadcast</span>
+    </a>
+    <a href="/admin/admins" class="bottom-nav-link" data-path="/admin/admins" title="Adminlar">
+        <span>🛡️</span>
+        <span>Admin</span>
+    </a>
+    <a href="/admin/settings" class="bottom-nav-link" data-path="/admin/settings" title="Settings">
+        <span>⚙️</span>
+        <span>Sozlama</span>
+    </a>
+</nav>
+{% endif %}
+
+<script src="{{ request.url_for('admin-static', path='responsive.js') }}"></script>
+<script>
+    (() => {
+        const current = window.location.pathname;
+        document.querySelectorAll("[data-path]").forEach((el) => {
+            const path = el.getAttribute("data-path");
+            if (!path) return;
+            if (current === path || (path !== "/admin" && current.startsWith(path + "/"))) {
+                el.classList.add("active");
+            }
+        });
+
+        document.querySelectorAll(".flash").forEach((flash) => {
+            setTimeout(() => {
+                flash.classList.add("flash-hide");
+                setTimeout(() => flash.remove(), 320);
+            }, 5000);
+        });
+    })();
+</script>
+</body>
+</html>

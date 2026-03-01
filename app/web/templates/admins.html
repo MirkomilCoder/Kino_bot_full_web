@@ -1,0 +1,97 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>🛡️</span>
+        <span>Adminlar Boshqaruvi</span>
+    </h1>
+    <p class="muted">Owner va adminlar ro'yxati. Faqat owner admin tayinlaydi yoki o'chiradi.</p>
+</section>
+
+<section class="panel">
+    <h2>👑 Owner</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Ism</th>
+                <th>Username</th>
+                <th>Manba</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><code>{{ owner_info.user_id }}</code></td>
+                <td>{{ owner_info.full_name or "-" }}</td>
+                <td>{% if owner_info.username %}<code>@{{ owner_info.username }}</code>{% else %}<span class="muted">-</span>{% endif %}</td>
+                <td><span class="chip">owner</span></td>
+                <td><span class="status ok">✅ Doimiy</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>🧩 Adminlar ({{ total_admins }})</h2>
+
+    {% if can_manage_admins %}
+    <form method="post" action="/admin/admins/add" class="inline-form" style="margin-bottom: 14px;">
+        <input type="number" name="user_id" placeholder="User ID (masalan: 123456789)" required>
+        <button class="btn btn-primary" type="submit">➕ Admin Tayinlash</button>
+    </form>
+    {% else %}
+    <div class="note warn" style="margin-bottom: 14px;">⚠️ Siz admin rolidasiz. Bu bo'lim read-only.</div>
+    {% endif %}
+
+    {% if admin_rows %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Ism</th>
+                <th>Username</th>
+                <th>Manba</th>
+                <th>Amal</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in admin_rows %}
+            <tr>
+                <td><code>{{ row.user_id }}</code></td>
+                <td>{{ row.full_name or "-" }}</td>
+                <td>{% if row.username %}<code>@{{ row.username }}</code>{% else %}<span class="muted">-</span>{% endif %}</td>
+                <td>
+                    {% if row.source == "env" %}
+                    <span class="chip">env</span>
+                    {% else %}
+                    <span class="chip">dynamic</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if can_manage_admins and row.removable %}
+                    <form method="post" action="/admin/admins/remove" class="inline-form">
+                        <input type="hidden" name="user_id" value="{{ row.user_id }}">
+                        <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Admin o\'chirilsinmi?')">🗑️ O'chirish</button>
+                    </form>
+                    {% elif row.removable %}
+                    <span class="muted">Owner-only</span>
+                    {% else %}
+                    <span class="status info">📌 Fixed (ENV)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="note">📭 Hozircha admin qo'shilmagan.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>📣</span>
+        <span>Broadcast Yuborish</span>
+    </h1>
+    <p class="muted">Barcha userlarga bir vaqtda xabar yuboring. Ehtiyotkorlik bilan ishlating.</p>
+
+    <form method="post" action="/admin/broadcast/send" class="form-grid" style="margin-top: 12px;">
+        <label>
+            <span>📝 Xabar Matni</span>
+            <textarea name="message_text" rows="6" placeholder="Broadcast xabarini yozing. Emoji va format ham qo'llash mumkin." required></textarea>
+        </label>
+
+        <label class="checkbox">
+            <input type="checkbox" name="include_staff" value="1">
+            <span>👮 Admin/Staff userlarga ham yuborilsin</span>
+        </label>
+
+        <div class="note warn">
+            <strong>⚠️ Diqqat!</strong>
+            <p style="margin-top: 6px;">Bu xabar barcha aktiv userlarga yuboriladi. Jarayon qaytarib bo'lmaydi.</p>
+        </div>
+
+        <button class="btn btn-danger" type="submit" onclick="return confirm('Broadcast haqiqatan yuborilsinmi? Bu jarayonni to\'xtatib bo\'lmaydi.')">
+            <span>📤</span>
+            <span>Broadcastni Boshlash</span>
+        </button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>📋 Broadcast Loglar</h2>
+
+    {% if logs %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>🔢 ID</th>
+                <th>📊 Status</th>
+                <th>👥 Umumiy</th>
+                <th>✅ Yuborildi</th>
+                <th>❌ Xato</th>
+                <th>📅 Boshlangan</th>
+                <th>🏁 Tugallangan</th>
+                <th>📝 Xabar</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in logs %}
+            <tr>
+                <td><strong>#{{ row.id }}</strong></td>
+                <td>
+                    {% if row.status == "done" %}
+                    <span class="status ok">✅ Tugallandi</span>
+                    {% elif row.status == "failed" %}
+                    <span class="status bad">❌ Xato</span>
+                    {% elif row.status == "running" %}
+                    <span class="status warn">⏳ Ishlayapti</span>
+                    {% else %}
+                    <span class="status info">🕓 Navbatda</span>
+                    {% endif %}
+                </td>
+                <td><span class="chip">{{ row.total_users }} ta</span></td>
+                <td><span class="status ok">{{ row.sent_count }}</span></td>
+                <td><span class="status bad">{{ row.failed_count }}</span></td>
+                <td>{{ row.created_at|fmt_dt }}</td>
+                <td>
+                    {% if row.completed_at %}
+                    <span>{{ row.completed_at|fmt_dt }}</span>
+                    {% else %}
+                    <span class="muted">—</span>
+                    {% endif %}
+                </td>
+                <td class="clamp" title="{{ row.message_text }}">{{ row.message_text }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="note">📭 Hozircha broadcast loglar bo'sh.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

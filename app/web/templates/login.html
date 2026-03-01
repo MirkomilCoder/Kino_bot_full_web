@@ -1,0 +1,24 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="center-wrap">
+    <div class="panel narrow">
+        <div style="text-align: center; margin-bottom: 14px;">
+            <h1>🔐 Kirish faqat Telegram orqali</h1>
+            <p class="muted" style="margin-top: 8px;">Bu admin panelga browserdan to'g'ridan-to'g'ri kirish yopilgan.</p>
+        </div>
+
+        <div class="note">
+            <p><strong>Qanday kiriladi:</strong></p>
+            <p>1. Telegram botga kiring.</p>
+            <p>2. <code>/admin</code> yoki <code>/webapp</code> buyrug'ini yuboring.</p>
+            <p>3. <strong>Web App</strong> tugmasini bosing.</p>
+        </div>
+
+        <div class="status info" style="margin-top: 12px;">
+            📱 Telegram Mini App autentifikatsiyasi (hash + initData) talab qilinadi.
+        </div>
+    </div>
+</section>
+
+{% endblock %}

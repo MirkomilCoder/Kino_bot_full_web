@@ -1,0 +1,84 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h1 class="page-title">
+        <span>💬</span>
+        <span>Support Ticketlar</span>
+    </h1>
+
+    <form method="get" action="/admin/support" class="inline-form" style="margin-bottom: 14px;">
+        <select name="status">
+            <option value="open" {% if support_status == "open" %}selected{% endif %}>📭 Ochiq</option>
+            <option value="answered" {% if support_status == "answered" %}selected{% endif %}>✅ Javob Berilgan</option>
+            <option value="all" {% if support_status == "all" %}selected{% endif %}>📋 Barchasi</option>
+        </select>
+        <button class="btn btn-primary" type="submit">🔎 Filtrlash</button>
+    </form>
+
+    {% if tickets %}
+    {% for t in tickets %}
+    <article class="ticket">
+        <header>
+            <strong>#{{ t.id }}</strong>
+            <span>👤 User: <code>{{ t.user_id }}</code></span>
+            <span>
+                {% if t.status == "open" %}
+                <span class="status bad">📭 Ochiq</span>
+                {% elif t.status == "answered" %}
+                <span class="status ok">✅ Javob Berilgan</span>
+                {% else %}
+                <span class="status info">📌 {{ t.status }}</span>
+                {% endif %}
+            </span>
+            <span class="muted">📅 {{ t.created_at|fmt_dt }}</span>
+        </header>
+
+        <div class="stat-row" style="border: none; padding-top: 0;">
+            <span class="stat-label">👤 Ism:</span>
+            <span><strong>{{ (t.first_name or "") ~ " " ~ (t.last_name or "") }}</strong></span>
+        </div>
+        <div class="stat-row" style="border: none; padding-top: 0;">
+            <span class="stat-label">📱 Username:</span>
+            <span>{% if t.username %}<code>@{{ t.username }}</code>{% else %}<span class="muted">—</span>{% endif %}</span>
+        </div>
+
+        <div class="note" style="margin-top: 10px;">
+            <strong>💬 Xabar:</strong>
+            <p style="margin-top: 6px; white-space: pre-wrap; word-break: break-word;">{{ t.message_text }}</p>
+        </div>
+
+        {% if t.status == "answered" %}
+        <div class="note ok" style="margin-top: 10px;">
+            <strong>✅ Javob:</strong>
+            <p style="margin-top: 6px; white-space: pre-wrap; word-break: break-word;">{{ t.answer_text or "—" }}</p>
+        </div>
+        {% else %}
+        <form method="post" action="/admin/support/reply" class="form-grid" style="margin-top: 12px;">
+            <input type="hidden" name="ticket_id" value="{{ t.id }}">
+            <label>
+                <span>📝 Javob Yozing</span>
+                <textarea name="reply_text" rows="4" placeholder="Userga javobni shu yerda yozing..." required></textarea>
+            </label>
+            <button class="btn btn-success" type="submit">📤 Javob Yuborish</button>
+        </form>
+        {% endif %}
+    </article>
+    {% endfor %}
+
+    <div class="inline-stats">
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Jami Ticketlar:</span>
+            <span class="stat-value">{{ total }}</span>
+        </div>
+        <div class="stat-row" style="border: none; padding: 0;">
+            <span class="stat-label">Sahifa:</span>
+            <span class="stat-value">{{ page }}</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="note">📭 Ticket topilmadi.</div>
+    {% endif %}
+</section>
+
+{% endblock %}
